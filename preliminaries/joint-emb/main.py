@@ -79,7 +79,7 @@ def main():
     scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=3, min_lr=1e-6)
     early_stopping = EarlyStopping(patience=10, min_delta=0.5, verbose=True)
     
-    num_epochs = 20
+    num_epochs = 8
     best_val_acc = 0
     
     print('\nStarting training...\n')
