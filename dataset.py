@@ -1,6 +1,4 @@
-"""
-Script to download 200 images from easy-VQA dataset with their questions and answers
-"""
+
 
 import os
 import json
@@ -39,7 +37,7 @@ def download_easy_vqa_data(num_images=200, output_dir="easy_vqa_data"):
     images_copied = 0
     
     for img_id in unique_image_ids:
-        # Copy image
+  
         src_path = train_image_paths[img_id]
         dst_path = images_dir / f"{img_id}.png"
         
@@ -47,7 +45,6 @@ def download_easy_vqa_data(num_images=200, output_dir="easy_vqa_data"):
             shutil.copy2(src_path, dst_path)
             images_copied += 1
             
-            # Get all questions for this image
             image_qa_pairs = []
             for idx, question_img_id in enumerate(train_image_ids):
                 if question_img_id == img_id:
