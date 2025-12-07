@@ -77,7 +77,7 @@ class ImageEncoder(nn.Module):
         self.pool = nn.MaxPool2d(2, 2)
         self.fc = nn.Linear(128 * 8 * 8, embed_dim)
         self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(0.4)
+        self.dropout = nn.Dropout(0.5)
         
     def forward(self, x):
         x = self.pool(self.relu(self.conv1(x)))
