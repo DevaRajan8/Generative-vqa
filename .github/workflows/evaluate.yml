@@ -1,0 +1,56 @@
+name: Model Evaluation
+
+on:
+  workflow_dispatch:
+    inputs:
+      checkpoint:
+        description: 'Checkpoint path or artifact name'
+        required: true
+      test_set:
+        description: 'Test set to use'
+        required: false
+        default: 'vqa_val'
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        pip install torch torchvision
+        pip install -r requirements.txt
+    
+    - name: Download test data
+      run: python scripts/download_dataset.py --split test
+    
+    - name: Run evaluation
+      run: |
+        python src/evaluate.py           --checkpoint ${{ github.event.inputs.checkpoint }}           --test-set ${{ github.event.inputs.test_set }}           --output results/eval_${{ github.run_id }}.json
+    
+    - name: Upload results
+      uses: actions/upload-artifact@v3
+      with:
+        name: evaluation-results
+        path: results/
+    
+    - name: Post results as comment
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const results = JSON.parse(fs.readFileSync('results/eval_${{ github.run_id }}.json'));
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `## Evaluation Results\n\nAccuracy: ${results.accuracy}%\nVQA Score: ${results.vqa_score}`
+          });

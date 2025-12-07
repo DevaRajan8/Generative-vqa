@@ -1,0 +1,62 @@
+name: Model Training
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: 'Model to train'
+        required: true
+        type: choice
+        options:
+          - stream_a
+          - stream_b
+          - fusion
+          - all
+      epochs:
+        description: 'Number of epochs'
+        required: false
+        default: '10'
+      dataset:
+        description: 'Dataset subset (for testing)'
+        required: false
+        default: 'full'
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 720  # 12 hours max
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+    
+    - name: Install PyTorch & dependencies
+      run: |
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+        pip install -r requirements.txt
+    
+    - name: Download VQA dataset
+      run: |
+        python scripts/download_dataset.py --subset ${{ github.event.inputs.dataset }}
+    
+    - name: Train model
+      run: |
+        python src/train.py           --model ${{ github.event.inputs.model }}           --epochs ${{ github.event.inputs.epochs }}           --log-dir runs/${{ github.run_id }}
+    
+    - name: Upload checkpoints
+      uses: actions/upload-artifact@v3
+      with:
+        name: model-${{ github.event.inputs.model }}-epoch${{ github.event.inputs.epochs }}
+        path: checkpoints/
+        retention-days: 30
+    
+    - name: Upload training logs
+      uses: actions/upload-artifact@v3
+      with:
+        name: logs-${{ github.run_id }}
+        path: runs/

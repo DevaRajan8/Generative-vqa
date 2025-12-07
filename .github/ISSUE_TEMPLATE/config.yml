@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Discussions & Questions
+    url: https://github.com/DevaRajan8/SynerVQA/discussions
+    about: Ask questions and discuss ideas
+  - name: 📚 Documentation
+    url: https://github.com/DevaRajan8/SynerVQA/wiki
+    about: Check the project wiki for guides
+  - name: 🔒 Security Issue
+    url: https://github.com/DevaRajan8/SynerVQA/security/advisories/new
+    about: Report security vulnerabilities privately

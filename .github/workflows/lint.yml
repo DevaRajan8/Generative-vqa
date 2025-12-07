@@ -1,0 +1,35 @@
+name: Code Quality
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install linters
+      run: pip install flake8 black isort mypy pylint
+    
+    - name: Run flake8
+      run: flake8 src/ tests/ --statistics
+    
+    - name: Check black formatting
+      run: black --check --diff src/ tests/
+    
+    - name: Check import sorting
+      run: isort --check-only --diff src/ tests/
+    
+    - name: Run pylint
+      run: pylint src/ --exit-zero
+    
+    - name: Type checking
+      run: mypy src/ --ignore-missing-imports
