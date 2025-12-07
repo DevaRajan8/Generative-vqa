@@ -1,0 +1,28 @@
+[
+  {
+    "image_id": 201,
+    "image_filename": "201.png",
+    "qa_pairs": [
+      {
+        "question": "what shape is in the image?",
+        "answer": "circle"
+      },
+      {
+        "question": "does the image not contain a rectangle?",
+        "answer": "yes"
+      },
+      {
+        "question": "is there not a black shape?",
+        "answer": "yes"
+      },
+      {
+        "question": "is there not a red shape in the image?",
+        "answer": "yes"
+      },
+      {
+        "question": "is there not a yellow shape in the image?",
+        "answer": "yes"
+      }
+    ]
+  }
+]
