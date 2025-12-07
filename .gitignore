@@ -6,6 +6,7 @@ __pycache__/
 # C extensions
 *.so
 .github.py
+easy_vqa_data/
 
 # Distribution / packaging
 .Python
