@@ -77,7 +77,7 @@ class ImageEncoder(nn.Module):
         self.pool = nn.MaxPool2d(2, 2)
         self.fc = nn.Linear(128 * 8 * 8, embed_dim)
         self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(0.5)
+        self.dropout = nn.Dropout(0.4)
         
     def forward(self, x):
         x = self.pool(self.relu(self.conv1(x)))
@@ -94,7 +94,7 @@ class TextEncoder(nn.Module):
         self.embedding = nn.Embedding(vocab_size, 300)
         self.lstm = nn.LSTM(300, hidden_dim, batch_first=True, bidirectional=True, dropout=0.2)
         self.fc = nn.Linear(hidden_dim * 2, embed_dim)
-        self.dropout = nn.Dropout(0.3)
+        self.dropout = nn.Dropout(0.4)
         
     def forward(self, x):
         x = self.embedding(x)
