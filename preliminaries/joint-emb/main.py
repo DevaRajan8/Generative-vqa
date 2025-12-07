@@ -76,7 +76,7 @@ def main():
     
     model = JointEmbeddingVQA(vocab_size, num_answers).to(device)
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
-    scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=3, verbose=True, min_lr=1e-6)
+    scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=3, min_lr=1e-6)
     early_stopping = EarlyStopping(patience=10, min_delta=0.5, verbose=True)
     
     num_epochs = 20
