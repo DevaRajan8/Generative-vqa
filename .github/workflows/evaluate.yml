@@ -43,7 +43,7 @@ jobs:
         path: results/
     
     - name: Post results as comment
-      uses: actions/github-script@v6
+      uses: actions/github-script@v8
       with:
         script: |
           const fs = require('fs');
