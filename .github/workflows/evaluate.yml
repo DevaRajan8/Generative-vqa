@@ -37,7 +37,7 @@ jobs:
         python src/evaluate.py           --checkpoint ${{ github.event.inputs.checkpoint }}           --test-set ${{ github.event.inputs.test_set }}           --output results/eval_${{ github.run_id }}.json
     
     - name: Upload results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v6
       with:
         name: evaluation-results
         path: results/
