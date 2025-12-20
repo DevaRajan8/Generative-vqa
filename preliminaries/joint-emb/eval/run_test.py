@@ -10,8 +10,7 @@ def main():
     train_json = r'C:\Users\rdeva\Downloads\sem6\SynerVQA\easy_vqa_data\questions_answers.json'
     test_json = r'C:\Users\rdeva\Downloads\sem6\SynerVQA\preliminaries\joint-emb\testfiles\tquestions_answers.json'
     test_images = r'C:\Users\rdeva\Downloads\sem6\SynerVQA\preliminaries\joint-emb\testfiles\timages'
-    
-    
+
     print("Loading vocabulary...")
     train_data, _ = process_data(train_json)
     dummy_dataset = EasyVQADataset('images', train_data)
