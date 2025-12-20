@@ -69,7 +69,7 @@ def predict_custom_image(model, image_path, question, vocab, idx_to_ans, device)
 
 if __name__ == '__main__':
     MY_IMAGE_PATH = r'C:\Users\rdeva\Downloads\sem6\SynerVQA\easy_vqa_data\images\18.png' 
-    MY_QUESTION = "what is the shape?"
+    MY_QUESTION = "what shape is in the image?"
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
@@ -87,3 +87,4 @@ if __name__ == '__main__':
     if result:
         answer, conf = result
         print(f"Prediction: {answer.upper()}")
+        print("confidence :",conf)
