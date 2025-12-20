@@ -1,7 +1,7 @@
 import torch
 from model import JointEmbeddingVQA, EasyVQADataset
 from main import process_data
-from evaluate import evaluate_on_test_set
+from .evaluate import evaluate_on_test_set
 def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
