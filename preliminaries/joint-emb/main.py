@@ -71,6 +71,25 @@ def main():
     vocab_size = len(train_dataset.vocab)
     num_answers = len(train_dataset.ans_vocab)
     
+    from collections import Counter
+
+    answer_counts = Counter()
+    for item in train_data:
+        answer_idx = train_dataset.ans_vocab[item['answer']]
+        answer_counts[answer_idx] += 1
+
+    total_samples = len(train_data)
+    class_weights = torch.zeros(num_answers)
+    for ans_idx in range(num_answers):
+        count = answer_counts.get(ans_idx, 1)
+        class_weights[ans_idx] = total_samples / (num_answers * count)
+    
+    class_weights = class_weights.to(device)
+    
+    print(f'Class weights calculated:')
+    for ans, idx in sorted(train_dataset.ans_vocab.items(), key=lambda x: x[1]):
+        print(f'  {ans}: {class_weights[idx]:.3f}')
+    
     print(f'Vocabulary size: {vocab_size}')
     print(f'Number of answers: {num_answers}')
     print(f'Training samples: {len(train_dataset)}')
@@ -115,7 +134,7 @@ def main():
             print('\nEarly stopping triggered!')
             break
         
-        print('-' * 60)
+        print('\n')
     
     print(f'\nTraining completed!')
     print(f'Best Validation Accuracy: {best_val_acc:.2f}%')
