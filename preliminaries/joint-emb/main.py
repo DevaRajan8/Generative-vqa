@@ -100,9 +100,9 @@ def main():
     print(f'Validation samples: {len(val_dataset)}')
     
     model = JointEmbeddingVQA(vocab_size, num_answers).to(device)
-    optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
-    scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=3, min_lr=1e-6)
-    early_stopping = EarlyStopping(patience=10, min_delta=0.5, verbose=True)
+    optimizer = optim.Adam(model.parameters(), lr=0.003, weight_decay=1e-4)
+    scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=5, min_lr=1e-6)
+    early_stopping = EarlyStopping(patience=15, min_delta=0.1, verbose=True)
     
     num_epochs = 20
     best_val_acc = 0
