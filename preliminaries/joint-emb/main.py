@@ -106,7 +106,7 @@ def main():
     print('\nStarting training...\n')
     
     for epoch in range(num_epochs):
-        train_loss, train_acc = train_one_epoch(model, train_loader, optimizer, device)
+        train_loss, train_acc = train_one_epoch(model, train_loader, optimizer, device,class_weights)
         val_acc, val_loss = validate(model, val_loader, device)
         
         scheduler.step(val_acc)

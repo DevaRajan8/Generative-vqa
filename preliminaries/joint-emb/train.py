@@ -34,7 +34,7 @@ class EarlyStopping:
         torch.save(model.state_dict(), path)
         self.val_acc_max = val_acc
 
-def train_one_epoch(model, dataloader, optimizer, device):
+def train_one_epoch(model, dataloader, optimizer, device, class_weights=None):
     model.train()
     total_loss = 0
     correct = 0
@@ -47,7 +47,7 @@ def train_one_epoch(model, dataloader, optimizer, device):
         
         optimizer.zero_grad()
         logits = model(images, questions)
-        loss = contrastive_loss(logits, answers)
+        loss = contrastive_loss(logits, answers,class_weights=class_weights)
         
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
