@@ -78,7 +78,7 @@ def evaluate_on_test_set(model, test_images_dir, test_json, vocab, ans_vocab, de
                 })
                 
                 
-                status = "✅" if is_correct else "❌"
+                status = "ok" if is_correct else "No"
                 print(f"\n{status} Image: {item['image_filename']}")
                 print(f"   Q: {question}")
                 print(f"   True: {true_answer}")
