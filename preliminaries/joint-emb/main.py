@@ -9,6 +9,7 @@ import random
 from model import EasyVQADataset, JointEmbeddingVQA
 from train import train_one_epoch, EarlyStopping
 from test import validate
+from visualise import TrainingVisualizer
 
 def process_data(json_file):
     with open(json_file, 'r') as f:
@@ -38,6 +39,8 @@ def process_data(json_file):
 def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f'Using device: {device}')
+    
+    visualizer = TrainingVisualizer()
     
     image_dir = r'C:\Users\rdeva\Downloads\sem6\SynerVQA\easy_vqa_data\images'
     json_file = r'C:\Users\rdeva\Downloads\sem6\SynerVQA\easy_vqa_data\questions_answers.json'
