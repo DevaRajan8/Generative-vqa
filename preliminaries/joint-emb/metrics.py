@@ -40,6 +40,6 @@ def compute_per_class_accuracy(model, dataloader, dataset, device):
         
         print(f"{answer_name:12s} {bar} {accuracy:5.1f}% ({correct}/{total})")
     
-    print("-" * 50)
+    print("\n")
     
     return class_correct, class_total

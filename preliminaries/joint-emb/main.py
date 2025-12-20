@@ -4,6 +4,7 @@ from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torchvision import transforms
 import json
+from metrics import compute_per_class_accuracy
 import random
 from model import EasyVQADataset, JointEmbeddingVQA
 from train import train_one_epoch, EarlyStopping
@@ -115,6 +116,10 @@ def main():
         print(f'Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%')
         print(f'Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%')
         print(f'Current LR: {optimizer.param_groups[0]["lr"]:.6f}')
+        
+        if (epoch + 1) % 10 == 0:
+            print(f"\nDetailed Metrics at Epoch {epoch+1}")
+            compute_per_class_accuracy(model, val_loader, val_dataset, device)
         
         if val_acc > best_val_acc:
             best_val_acc = val_acc
