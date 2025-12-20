@@ -99,6 +99,15 @@ def main():
         
         if val_acc > best_val_acc:
             best_val_acc = val_acc
+            print(f'New best validation accuracy: {best_val_acc:.2f}%')
+            
+        if epoch == 0:
+            initial_train_acc = train_acc
+            initial_val_acc = val_acc
+        else:
+            train_improvement = train_acc - initial_train_acc
+            val_improvement = val_acc - initial_val_acc
+            print(f'Improvement: Train +{train_improvement:.2f}%, Val +{val_improvement:.2f}%')
         
         early_stopping(val_acc, model, 'best_vqa_model.pth')
         
