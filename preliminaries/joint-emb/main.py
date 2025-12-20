@@ -120,7 +120,13 @@ def main():
         print(f'Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%')
         print(f'Current LR: {optimizer.param_groups[0]["lr"]:.6f}')
         
-        if (epoch + 1) % 10 == 0:
+        current_lr = optimizer.param_groups[0]['lr']
+        visualizer.update(train_loss, train_acc, val_loss, val_acc, current_lr)
+        
+        if (epoch + 1) % 2 == 0:
+            visualizer.plot()
+        
+        if (epoch + 1) % 2 == 0:
             print(f"\nDetailed Metrics at Epoch {epoch+1}")
             compute_per_class_accuracy(model, val_loader, val_dataset, device)
         
@@ -143,6 +149,9 @@ def main():
             break
         
         print('\n')
+        
+    visualizer.plot()
+    visualizer.save_history()
     
     print(f'\nTraining completed!')
     print(f'Best Validation Accuracy: {best_val_acc:.2f}%')
