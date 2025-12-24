@@ -24,5 +24,55 @@
         "answer": "yes"
       }
     ]
+  },
+  {
+    "image_id": 202,
+    "image_filename": "202.png",
+    "qa_pairs": [
+      {
+        "question": "what shape is in the image?",
+        "answer": "circle"
+      },
+      {
+        "question": "what color is the shape?",
+        "answer": "red"
+      },
+      {
+        "question": "does the image not contain a triangle?",
+        "answer": "yes"
+      },
+      {
+        "question": "is there a black shape in the image?",
+        "answer": "no"
+      },
+      {
+        "question": "does the image contain a gray shape?",
+        "answer": "no"
+      },
+      {
+        "question": "is there a blue shape in the image?",
+        "answer": "no"
+      },
+      {
+        "question": "does the image contain a blue shape?",
+        "answer": "no"
+      },
+      {
+        "question": "is no blue shape present?",
+        "answer": "yes"
+      },
+      {
+        "question": "is there a yellow shape?",
+        "answer": "no"
+      },
+      {
+        "question": "is there not a yellow shape in the image?",
+        "answer": "yes"
+      },
+      {
+        "question": "is a teal shape present?",
+        "answer": "no"
+      }
+    ]
   }
 ]

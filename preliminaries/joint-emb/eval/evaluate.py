@@ -54,6 +54,9 @@ def evaluate_on_test_set(model, test_images_dir, test_json, vocab, ans_vocab, de
                 
                 
                 logits = model(image_tensor, question_tensor)
+                temperature = 0.07
+                logits = logits / temperature
+                
                 probabilities = torch.nn.functional.softmax(logits, dim=1)
                 confidence, predicted_idx = probabilities.max(1)
                 

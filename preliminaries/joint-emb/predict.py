@@ -61,6 +61,8 @@ def predict_custom_image(model, image_path, question, vocab, idx_to_ans, device)
 
     with torch.no_grad():
         logits = model(image_tensor, question_tensor)
+        temperature=0.07
+        logits = logits / temperature
         probabilities = torch.nn.functional.softmax(logits, dim=1)
         confidence, predicted_idx = probabilities.max(1)
         answer = idx_to_ans[predicted_idx.item()]
