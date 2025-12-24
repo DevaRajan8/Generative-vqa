@@ -8,6 +8,7 @@ __pycache__/
 .github.py
 easy_vqa_data/
 best_vqa_model.pth
+vqa2/
 
 # Distribution / packaging
 .Python
