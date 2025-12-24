@@ -85,4 +85,4 @@ def download_specific_images(image_ids, output_dir="easy_vqa_data"):
     return dataset
 
 if __name__ == "__main__":
-    dataset = download_specific_images(201)
+    dataset = download_specific_images(202)
