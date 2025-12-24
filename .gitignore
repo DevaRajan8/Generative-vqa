@@ -9,6 +9,10 @@ __pycache__/
 easy_vqa_data/
 best_vqa_model.pth
 vqa2/
+train_images/
+val_images/
+train_data.json
+val_data.json
 
 # Distribution / packaging
 .Python
