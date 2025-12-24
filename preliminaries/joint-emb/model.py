@@ -133,7 +133,7 @@ class JointEmbeddingVQA(nn.Module):
         logits = torch.matmul(combined, ans_emb.t())
         return logits
 
-def contrastive_loss(logits, targets, temperature=0.07,class_weights=None):
+def contrastive_loss(logits, targets, temperature=0.3,class_weights=None):
     logits = logits / temperature
     if class_weights is not None:
         loss = nn.functional.cross_entropy(logits, targets, weight=class_weights)
