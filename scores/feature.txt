@@ -1,0 +1,77 @@
+================================================================================
+EVALUATION RESULTS
+================================================================================
+
+📊 Accuracy Metrics:
+  Exact Match Accuracy:  47.17% (63805/135256)
+  VQA Accuracy:          15.72%
+
+📊 ANLS Metrics:
+  Average ANLS (τ=0.5):  50.18%
+  ANLS Std Dev:          48.96%
+
+📊 Additional Statistics:
+  Total samples:         135256
+  Avg prediction length: 1.13 words
+  Avg GT length:         1.10 words
+
+================================================================================
+SAMPLE PREDICTIONS
+================================================================================
+
+🏆 Best Predictions (Highest ANLS):
+--------------------------------------------------------------------------------
+
+Ground Truth: tusks
+Prediction:   tusks
+ANLS:         1.0000
+Exact Match:  ✓
+
+Ground Truth: seagull
+Prediction:   seagull
+ANLS:         1.0000
+Exact Match:  ✓
+
+Ground Truth: bedroom
+Prediction:   bedroom
+ANLS:         1.0000
+Exact Match:  ✓
+
+Ground Truth: cake
+Prediction:   cake
+ANLS:         1.0000
+Exact Match:  ✓
+
+Ground Truth: short
+Prediction:   short
+ANLS:         1.0000
+Exact Match:  ✓
+
+================================================================================
+⚠️  Worst Predictions (Lowest ANLS):
+--------------------------------------------------------------------------------
+
+Ground Truth: mirror
+Prediction:   car
+ANLS:         0.0000
+Exact Match:  ✗
+
+Ground Truth: towel
+Prediction:   toy
+ANLS:         0.0000
+Exact Match:  ✗
+
+Ground Truth: book
+Prediction:   camera
+ANLS:         0.0000
+Exact Match:  ✗
+
+Ground Truth: usa
+Prediction:   england
+ANLS:         0.0000
+Exact Match:  ✗
+
+Ground Truth: red and yellow
+Prediction:   green
+ANLS:         0.0000
+Exact Match:  ✗
