@@ -3,7 +3,7 @@ EVALUATION RESULTS
 ================================================================================
 
 📊 Accuracy Metrics:
-  Exact Match Accuracy:  47.17% (63805/135256)
+  Exact Match Accuracy:  50.17% (63805/135256)
   VQA Accuracy:          15.72%
 
 📊 ANLS Metrics:
