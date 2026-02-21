@@ -1,53 +1,38 @@
 import { Platform } from "react-native";
-
-// Theme Configuration - Vibrant & Colorful
 export const theme = {
   colors: {
-    // Vibrant primary colors
-    primary: "#FF6B9D", // Hot Pink
-    secondary: "#FEC163", // Golden Yellow
-    accent: "#4ECDC4", // Turquoise
-
-    // Background gradients
-    background: "#1A1A2E", // Deep Navy
-    surface: "#16213E", // Dark Blue
-    card: "#0F3460", // Rich Blue
-
-    // Text colors
-    text: "#FFFFFF",
-    textSecondary: "#E94560", // Coral Red
-
-    // Status colors
-    error: "#FF5252",
-    success: "#00E676",
-    warning: "#FFD600",
-    info: "#00B0FF",
-
-    // Gradient colors - Rainbow theme
-    gradientStart: "#FF6B9D", // Pink
-    gradientMiddle: "#C44569", // Rose
-    gradientEnd: "#FEC163", // Gold
-
-    // Alternative gradients
-    gradient2Start: "#4ECDC4", // Turquoise
-    gradient2Middle: "#556FB5", // Purple Blue
-    gradient2End: "#A8E6CF", // Mint
-
-    gradient3Start: "#FFD93D", // Yellow
-    gradient3Middle: "#FF6B9D", // Pink
-    gradient3End: "#6BCB77", // Green
-
-    // Model badges - Bright colors
-    baseModel: "#00D9FF", // Cyan
-    spatialModel: "#FFB800", // Amber
-
-    // UI accents
-    buttonPrimary: "#FF6B9D",
-    buttonSecondary: "#4ECDC4",
-    inputBg: "#0F3460",
-    inputBorder: "#FF6B9D",
+    primary: "#2563EB", 
+    secondary: "#1E40AF", 
+    accent: "#3B82F6", 
+    background: "#0F172A", 
+    surface: "#1E293B", 
+    card: "#1E293B", 
+    text: "#FFFFFF", 
+    textSecondary: "#94A3B8", 
+    error: "#EF4444", 
+    success: "#10B981", 
+    warning: "#F59E0B", 
+    info: "#3B82F6", 
+    gradientStart: "#1E40AF", 
+    gradientMiddle: "#2563EB", 
+    gradientEnd: "#3B82F6", 
+    gradient2Start: "#0F172A", 
+    gradient2Middle: "#1E293B", 
+    gradient2End: "#334155", 
+    baseModel: "#3B82F6", 
+    spatialModel: "#2563EB", 
+    buttonPrimary: "#2563EB",
+    buttonSecondary: "#1E293B",
+    inputBg: "#1E293B",
+    inputBorder: "#334155", 
+    glassBackground: "rgba(30, 41, 59, 0.7)", 
+    glassBorder: "rgba(59, 130, 246, 0.3)", 
   },
-
+  animations: {
+    typingSpeed: 30, 
+    skeletonPulse: 1500, 
+    confidenceAnimation: 1000, 
+  },
   spacing: {
     xs: 4,
     sm: 8,
@@ -56,7 +41,6 @@ export const theme = {
     xl: 32,
     xxl: 48,
   },
-
   borderRadius: {
     sm: 8,
     md: 12,
@@ -64,7 +48,6 @@ export const theme = {
     xl: 24,
     full: 9999,
   },
-
   typography: {
     h1: {
       fontSize: 32,
@@ -97,48 +80,47 @@ export const theme = {
       lineHeight: 16,
     },
   },
-
   shadows: {
     sm: Platform.select({
       ios: {
-        shadowColor: "#FF6B9D",
+        shadowColor: "#000000",
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.1,
         shadowRadius: 4,
       },
       android: {
-        elevation: 3,
+        elevation: 2,
       },
       default: {
-        elevation: 3,
+        elevation: 2,
       },
     }),
     md: Platform.select({
       ios: {
-        shadowColor: "#FF6B9D",
+        shadowColor: "#000000",
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
+        shadowOpacity: 0.15,
         shadowRadius: 8,
       },
       android: {
-        elevation: 5,
+        elevation: 4,
       },
       default: {
-        elevation: 5,
+        elevation: 4,
       },
     }),
     lg: Platform.select({
       ios: {
-        shadowColor: "#FF6B9D",
+        shadowColor: "#000000",
         shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.4,
+        shadowOpacity: 0.2,
         shadowRadius: 16,
       },
       android: {
-        elevation: 8,
+        elevation: 6,
       },
       default: {
-        elevation: 8,
+        elevation: 6,
       },
     }),
   },

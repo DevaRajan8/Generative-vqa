@@ -16,7 +16,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { theme } from '../styles/theme';
-
 export default function LoginScreen({ navigation }) {
   const { signIn, signUp } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
@@ -26,25 +25,20 @@ export default function LoginScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const scaleAnim = new Animated.Value(1);
-  
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      
       if (isSignUp) {
         await signUp(email, password, confirmPassword);
       } else {
         await signIn(email, password);
       }
-      
-      // Navigation will happen automatically via AuthContext
     } catch (error) {
       Alert.alert('Error', error.message || 'Authentication failed');
     } finally {
       setLoading(false);
     }
   };
-  
   const animateButton = () => {
     Animated.sequence([
       Animated.timing(scaleAnim, {
@@ -59,10 +53,9 @@ export default function LoginScreen({ navigation }) {
       }),
     ]).start();
   };
-  
   return (
     <LinearGradient
-      colors={[theme.colors.gradient3Start, theme.colors.gradient3Middle, theme.colors.gradient3End]}
+      colors={[theme.colors.gradientStart, theme.colors.gradientMiddle, theme.colors.gradientEnd]}
       style={styles.container}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
@@ -76,7 +69,7 @@ export default function LoginScreen({ navigation }) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* App Icon */}
+          {}
           <View style={styles.iconContainer}>
             <MaterialCommunityIcons
               name="brain"
@@ -84,18 +77,15 @@ export default function LoginScreen({ navigation }) {
               color={theme.colors.text}
             />
           </View>
-          
-          {/* Title */}
+          {}
           <Text style={styles.title}>VQA Assistant</Text>
           <Text style={styles.subtitle}>Visual Question Answering</Text>
-          
-          {/* Auth Form */}
+          {}
           <View style={styles.formContainer}>
             <Text style={styles.formTitle}>
               {isSignUp ? 'Create Account' : 'Welcome Back'}
             </Text>
-            
-            {/* Email Input */}
+            {}
             <View style={styles.inputContainer}>
               <MaterialCommunityIcons
                 name="email"
@@ -114,8 +104,7 @@ export default function LoginScreen({ navigation }) {
                 autoCorrect={false}
               />
             </View>
-            
-            {/* Password Input */}
+            {}
             <View style={styles.inputContainer}>
               <MaterialCommunityIcons
                 name="lock"
@@ -143,8 +132,7 @@ export default function LoginScreen({ navigation }) {
                 />
               </TouchableOpacity>
             </View>
-            
-            {/* Confirm Password (Sign Up only) */}
+            {}
             {isSignUp && (
               <View style={styles.inputContainer}>
                 <MaterialCommunityIcons
@@ -164,8 +152,7 @@ export default function LoginScreen({ navigation }) {
                 />
               </View>
             )}
-            
-            {/* Submit Button */}
+            {}
             <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
               <TouchableOpacity
                 style={styles.submitButton}
@@ -184,8 +171,7 @@ export default function LoginScreen({ navigation }) {
                 )}
               </TouchableOpacity>
             </Animated.View>
-            
-            {/* Toggle Sign In/Sign Up */}
+            {}
             <TouchableOpacity
               onPress={() => {
                 setIsSignUp(!isSignUp);
@@ -200,8 +186,7 @@ export default function LoginScreen({ navigation }) {
               </Text>
             </TouchableOpacity>
           </View>
-          
-          {/* Features */}
+          {}
           <View style={styles.featuresContainer}>
             <View style={styles.feature}>
               <MaterialCommunityIcons name="image-search" size={20} color={theme.colors.text} />
@@ -221,7 +206,6 @@ export default function LoginScreen({ navigation }) {
     </LinearGradient>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

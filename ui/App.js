@@ -7,38 +7,29 @@ import { AuthProvider, useAuth } from "./src/contexts/AuthContext";
 import LoginScreen from "./src/screens/LoginScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import { theme } from "./src/styles/theme";
-
-// Ignore specific warnings/errors that don't affect functionality
 LogBox.ignoreLogs([
-  "Property 'ipconfig' doesn't exist", // Metro bundler cache issue
-  "ImagePicker.MediaTypeOptions", // Already fixed, but may appear in cache
+  "Property 'ipconfig' doesn't exist", 
+  "ImagePicker.MediaTypeOptions", 
 ]);
-
 const Stack = createNativeStackNavigator();
-
-// Only import/prevent on native platforms
 if (Platform.OS !== "web") {
   import("expo-splash-screen").then(({ default: SplashScreen }) => {
     SplashScreen.preventAutoHideAsync();
   });
 }
-
 function AppNavigator() {
   const { user, loading } = useAuth();
   const [appReady, setAppReady] = useState(false);
-
   useEffect(() => {
     if (Platform.OS === "web" || !loading) {
       setAppReady(true);
     }
   }, [loading]);
-
   if (!appReady) {
     return (
-      <></> // Empty fragment shows nothing, no splash needed on web
+      <></> 
     );
   }
-
   return (
     <>
       <StatusBar style="light" />
@@ -59,7 +50,6 @@ function AppNavigator() {
     </>
   );
 }
-
 export default function App() {
   return (
     <AuthProvider>

@@ -7,7 +7,7 @@ from tqdm import tqdm
 from collections import Counter
 IMAGES_DIR = r"../train2014"
 QUESTIONS_PATH = r"../v2_OpenEnded_mscoco_train2014_questions.json"
-ANNOTATIONS_PATH = r"../v2_mscoco_train2014_annotations.json"
+# ANNOTATIONS_PATH = r"../v2_mscoco_train2014_annotations.json"
 OUTPUT_DIR = "./gen_vqa_v2"
 os.makedirs(os.path.join(OUTPUT_DIR, "images"), exist_ok=True)
 print("Loading VQA v2 data...")

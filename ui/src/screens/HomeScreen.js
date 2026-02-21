@@ -6,33 +6,35 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Alert,
 } from "react-native";
-import { Image } from "react-native";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import * as Speech from "expo-speech";
 import { useAuth } from "../contexts/AuthContext";
 import { askQuestion } from "../services/api";
 import { theme } from "../styles/theme";
-
+import ConfidenceMeter from "../components/ConfidenceMeter";
+import TypingText from "../components/TypingText";
+import SkeletonLoader from "../components/SkeletonLoader";
+import SuggestedQuestions from "../components/SuggestedQuestions";
 export default function HomeScreen() {
   const { user, signOut } = useAuth();
   const [selectedImage, setSelectedImage] = useState(null);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const pickImage = async (useCamera = false) => {
     try {
-      // Request permissions
       const permissionResult = useCamera
         ? await ImagePicker.requestCameraPermissionsAsync()
         : await ImagePicker.requestMediaLibraryPermissionsAsync();
-
       if (!permissionResult.granted) {
         Alert.alert(
           "Permission Required",
@@ -40,49 +42,43 @@ export default function HomeScreen() {
         );
         return;
       }
-
-      // Launch picker
       const result = useCamera
         ? await ImagePicker.launchCameraAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: ["images"], 
             allowsEditing: true,
             aspect: [4, 3],
             quality: 0.8,
           })
         : await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: ["images"], 
             allowsEditing: true,
             aspect: [4, 3],
             quality: 0.8,
           });
-
-      if (!result.canceled) {
-        const imageUri = result.assets[0].uri;
-        console.log("Image selected:", imageUri);
-        console.log("Image details:", result.assets[0]);
-        setSelectedImage(imageUri);
-        setAnswer(null); // Clear previous answer
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        console.log("Image selected:", asset.uri);
+        console.log("Image details:", asset);
+        setSelectedImage(asset);
+        setAnswer(null); 
       }
     } catch (error) {
       console.error("Error picking image:", error);
-      Alert.alert("Error", "Failed to pick image");
+      Alert.alert("Error", "Failed to pick image: " + error.message);
     }
   };
-
   const handleAskQuestion = async () => {
     if (!selectedImage) {
       Alert.alert("No Image", "Please select an image first");
       return;
     }
-
     if (!question.trim()) {
       Alert.alert("No Question", "Please enter a question");
       return;
     }
-
     try {
       setLoading(true);
-      const result = await askQuestion(selectedImage, question);
+      const result = await askQuestion(selectedImage.uri, question);
       setAnswer(result);
     } catch (error) {
       console.error("Error asking question:", error);
@@ -91,13 +87,31 @@ export default function HomeScreen() {
       setLoading(false);
     }
   };
-
   const clearImage = () => {
     setSelectedImage(null);
     setAnswer(null);
     setQuestion("");
+    if (isSpeaking) {
+      Speech.stop();
+      setIsSpeaking(false);
+    }
   };
-
+  const handleSpeak = (text) => {
+    if (isSpeaking) {
+      Speech.stop();
+      setIsSpeaking(false);
+    } else {
+      setIsSpeaking(true);
+      Speech.speak(text, {
+        language: "en",
+        pitch: 1.0,
+        rate: 0.9,
+        onDone: () => setIsSpeaking(false),
+        onStopped: () => setIsSpeaking(false),
+        onError: () => setIsSpeaking(false),
+      });
+    }
+  };
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -113,7 +127,7 @@ export default function HomeScreen() {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        {/* Header */}
+        {}
         <LinearGradient
           colors={[theme.colors.primary, theme.colors.secondary]}
           style={styles.header}
@@ -122,7 +136,11 @@ export default function HomeScreen() {
         >
           <View style={styles.userInfo}>
             {user?.picture && (
-              <Image source={{ uri: user.picture }} style={styles.avatar} />
+              <Image
+                source={{ uri: user.picture }}
+                style={styles.avatar}
+                cachePolicy="memory-disk"
+              />
             )}
             <View>
               <Text style={styles.userName}>{user?.name || "User"}</Text>
@@ -137,32 +155,35 @@ export default function HomeScreen() {
             />
           </TouchableOpacity>
         </LinearGradient>
-
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Title */}
+          {}
           <Text style={styles.title}>Visual Question Answering</Text>
           <Text style={styles.subtitle}>
             Upload an image and ask a question
           </Text>
-
-          {/* Image Picker */}
+          {}
           <View style={styles.imageSection}>
             {selectedImage ? (
               <View style={styles.imageContainer}>
                 <Image
-                  source={{ uri: selectedImage }}
+                  source={{ uri: selectedImage.uri }}
                   style={styles.selectedImage}
-                  resizeMode="cover"
-                  transition={200}
+                  contentFit="contain"
+                  cachePolicy="memory-disk"
+                  priority="high"
                   onError={(error) => {
                     console.error("Image load error:", error);
+                    Alert.alert("Error", "Failed to load image");
                   }}
                   onLoad={() => {
-                    console.log("Image loaded successfully:", selectedImage);
+                    console.log(
+                      "Image loaded successfully:",
+                      selectedImage.uri,
+                    );
                   }}
                 />
                 <TouchableOpacity
@@ -172,7 +193,7 @@ export default function HomeScreen() {
                   <MaterialCommunityIcons
                     name="close-circle"
                     size={32}
-                    color={theme.colors.error}
+                    color="#FF6B6B"
                   />
                 </TouchableOpacity>
               </View>
@@ -186,7 +207,6 @@ export default function HomeScreen() {
                 <Text style={styles.placeholderText}>No image selected</Text>
               </View>
             )}
-
             <View style={styles.imageButtons}>
               <TouchableOpacity
                 style={styles.imageButton}
@@ -199,7 +219,6 @@ export default function HomeScreen() {
                 />
                 <Text style={styles.imageButtonText}>Camera</Text>
               </TouchableOpacity>
-
               <TouchableOpacity
                 style={styles.imageButton}
                 onPress={() => pickImage(false)}
@@ -213,8 +232,9 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
           </View>
-
-          {/* Question Input */}
+          {}
+          <SuggestedQuestions onQuestionSelect={setQuestion} />
+          {}
           <View style={styles.questionSection}>
             <Text style={styles.sectionTitle}>Your Question</Text>
             <TextInput
@@ -226,14 +246,16 @@ export default function HomeScreen() {
               multiline
               maxLength={200}
             />
-
             <TouchableOpacity
               style={[styles.askButton, loading && styles.askButtonDisabled]}
               onPress={handleAskQuestion}
               disabled={loading}
             >
               {loading ? (
-                <ActivityIndicator color={theme.colors.text} />
+                <View style={styles.loadingContainer}>
+                  <SkeletonLoader variant="text" width="60%" height={20} style={{ marginBottom: 8 }} />
+                  <SkeletonLoader variant="text" width="80%" height={20} />
+                </View>
               ) : (
                 <>
                   <MaterialCommunityIcons
@@ -246,38 +268,114 @@ export default function HomeScreen() {
               )}
             </TouchableOpacity>
           </View>
-
-          {/* Answer Display */}
+          {}
           {answer && (
             <View style={styles.answerSection}>
-              <Text style={styles.sectionTitle}>Answer</Text>
-              <View style={styles.answerCard}>
+              <BlurView intensity={80} tint="dark" style={styles.answerCard}>
                 <View style={styles.answerHeader}>
                   <MaterialCommunityIcons
-                    name="lightbulb-on"
+                    name="lightbulb"
                     size={24}
-                    color={theme.colors.warning}
+                    color={theme.colors.primary}
                   />
-                  <View style={styles.modelBadge}>
-                    <Text style={styles.modelBadgeText}>
-                      {answer.model_used === "spatial"
-                        ? "📍 Spatial Model"
-                        : "🔍 Base Model"}
+                  <Text style={styles.sectionTitle}>Answer</Text>
+                  {answer.model && (
+                    <View style={styles.modelBadge}>
+                      <Text style={styles.modelBadgeText}>{answer.model}</Text>
+                    </View>
+                  )}
+                </View>
+                <TypingText 
+                  text={answer.answer} 
+                  style={styles.answerText}
+                  speed={theme.animations.typingSpeed}
+                  showCursor={false}
+                />
+                <View style={styles.answerMeta}>
+                  {answer.processing_time && (
+                    <Text style={styles.metaText}>
+                      ⚡ {answer.processing_time.toFixed(2)}s
+                    </Text>
+                  )}
+                  {answer.confidence && (
+                    <View style={styles.confidenceContainer}>
+                      <ConfidenceMeter 
+                        confidence={answer.confidence} 
+                        size={60}
+                      />
+                    </View>
+                  )}
+                </View>
+              </BlurView>
+              {answer.description && (
+                <BlurView intensity={80} tint="dark" style={styles.descriptionCard}>
+                  <View style={styles.descriptionHeader}>
+                    <View style={styles.descriptionTitleRow}>
+                      <MaterialCommunityIcons
+                        name="text-to-speech"
+                        size={24}
+                        color={theme.colors.success}
+                      />
+                      <Text style={styles.descriptionTitle}>
+                        Accessible Description
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.speakButton}
+                      onPress={() => handleSpeak(answer.description)}
+                    >
+                      <MaterialCommunityIcons
+                        name={isSpeaking ? "stop-circle" : "volume-high"}
+                        size={28}
+                        color={
+                          isSpeaking ? theme.colors.error : theme.colors.primary
+                        }
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <TypingText 
+                    text={answer.description} 
+                    style={styles.descriptionText}
+                    speed={theme.animations.typingSpeed}
+                    showCursor={false}
+                  />
+                  {answer.description_status &&
+                    answer.description_status !== "success" && (
+                      <Text style={styles.descriptionStatus}>
+                        ℹ️ Using {answer.description_status} mode
+                      </Text>
+                    )}
+                </BlurView>
+              )}
+              {}
+              {answer.kg_enhancement && (
+                <BlurView intensity={80} tint="dark" style={styles.kgCard}>
+                  <View style={styles.kgHeader}>
+                    <MaterialCommunityIcons
+                      name="brain"
+                      size={24}
+                      color={theme.colors.info}
+                    />
+                    <Text style={styles.kgTitle}>Common-Sense Reasoning</Text>
+                    {answer.reasoning_type === 'neuro-symbolic' && (
+                      <View style={styles.neurosymbolicBadge}>
+                        <Text style={styles.badgeText}>🧠+🔗</Text>
+                      </View>
+                    )}
+                  </View>
+                  <TypingText 
+                    text={answer.kg_enhancement} 
+                    style={styles.kgText}
+                    speed={theme.animations.typingSpeed}
+                    showCursor={false}
+                  />
+                  <View style={styles.kgFooter}>
+                    <Text style={styles.kgFooterText}>
+                      💡 Enhanced with Knowledge Graph
                     </Text>
                   </View>
-                </View>
-
-                <Text style={styles.answerText}>{answer.answer}</Text>
-
-                <View style={styles.answerMeta}>
-                  <Text style={styles.metaText}>
-                    Type: {answer.question_type || "general"}
-                  </Text>
-                  <Text style={styles.metaText}>
-                    Confidence: {(answer.confidence * 100).toFixed(0)}%
-                  </Text>
-                </View>
-              </View>
+                </BlurView>
+              )}
             </View>
           )}
         </ScrollView>
@@ -285,7 +383,6 @@ export default function HomeScreen() {
     </KeyboardAvoidingView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -348,22 +445,26 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.lg,
     overflow: "hidden",
     marginBottom: theme.spacing.md,
-    backgroundColor: theme.colors.card,
+    backgroundColor: "#FFFFFF", 
     width: "100%",
-    height: 300,
+    minHeight: 300,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: theme.colors.primary,
   },
   selectedImage: {
     width: "100%",
     height: 300,
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: theme.colors.surface,
+    minHeight: 300,
   },
   clearButton: {
     position: "absolute",
     top: theme.spacing.md,
     right: theme.spacing.md,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    borderRadius: theme.borderRadius.full,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    borderRadius: 20,
+    padding: 4,
   },
   imagePlaceholder: {
     height: 300,
@@ -437,13 +538,20 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginLeft: theme.spacing.sm,
   },
+  loadingContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
   answerSection: {
     marginBottom: theme.spacing.xl,
   },
   answerCard: {
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.colors.glassBackground,
     borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.glassBorder,
+    overflow: 'hidden',
     ...theme.shadows.md,
   },
   answerHeader: {
@@ -472,6 +580,7 @@ const styles = StyleSheet.create({
   answerMeta: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     borderTopWidth: 1,
     borderTopColor: theme.colors.surface,
     paddingTop: theme.spacing.md,
@@ -479,5 +588,105 @@ const styles = StyleSheet.create({
   metaText: {
     color: theme.colors.textSecondary,
     fontSize: 14,
+  },
+  confidenceContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  descriptionCard: {
+    backgroundColor: theme.colors.glassBackground,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    marginTop: theme.spacing.md,
+    borderLeftWidth: 4,
+    borderLeftColor: theme.colors.success,
+    borderWidth: 1,
+    borderColor: theme.colors.glassBorder,
+    overflow: 'hidden',
+    ...theme.shadows.md,
+  },
+  descriptionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: theme.spacing.md,
+  },
+  descriptionTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  descriptionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: theme.colors.text,
+    marginLeft: theme.spacing.sm,
+  },
+  descriptionText: {
+    color: theme.colors.text,
+    fontSize: 16,
+    lineHeight: 24,
+    marginBottom: theme.spacing.sm,
+  },
+  descriptionStatus: {
+    color: theme.colors.textSecondary,
+    fontSize: 12,
+    fontStyle: "italic",
+    marginTop: theme.spacing.sm,
+  },
+  speakButton: {
+    padding: theme.spacing.sm,
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.surface,
+  },
+  kgCard: {
+    backgroundColor: theme.colors.glassBackground,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    marginTop: theme.spacing.md,
+    borderLeftWidth: 4,
+    borderLeftColor: theme.colors.info,
+    borderWidth: 1,
+    borderColor: theme.colors.glassBorder,
+    overflow: 'hidden',
+    ...theme.shadows.md,
+  },
+  kgHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
+  },
+  kgTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: theme.colors.text,
+    marginLeft: theme.spacing.sm,
+    flex: 1,
+  },
+  neurosymbolicBadge: {
+    backgroundColor: theme.colors.info,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.borderRadius.full,
+  },
+  badgeText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  kgText: {
+    color: theme.colors.text,
+    fontSize: 16,
+    lineHeight: 24,
+    marginBottom: theme.spacing.md,
+  },
+  kgFooter: {
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.surface,
+    paddingTop: theme.spacing.sm,
+  },
+  kgFooterText: {
+    color: theme.colors.textSecondary,
+    fontSize: 12,
+    fontStyle: 'italic',
   },
 });
