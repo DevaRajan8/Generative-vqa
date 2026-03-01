@@ -194,63 +194,74 @@ class ProductionEnsembleVQA:
                 )
             else:
                 generated = model(image, questions)
+        # Always get the neural answer first — it is ALWAYS the primary answer
+        if verbose:
+            print("📝 Using neural VQA...")
+        neural_answer = self.vocab.decoder(generated[0].cpu().numpy())
+
+        # Neuro-symbolic is a *supplement* only — its result goes into kg_enhancement,
+        # never replacing the neural answer.
+        kg_enhancement   = None
+        reasoning_type   = 'neural'
+        objects_detected = []
+        question_intent  = None
+        wikidata_entity  = None
+        knowledge_source = None
+
         if self.kg_enabled and self.kg_service:
             if verbose:
                 print("🔍 Analyzing question semantics...")
             should_use_ns = self.kg_service.should_use_neurosymbolic(
                 image_features=None,
                 question=question,
-                vqa_confidence=0.0
+                vqa_confidence=0.0,
+                image_path=image_path
             )
             if should_use_ns:
                 if verbose:
-                    print("🧠 Routing to Neuro-Symbolic (reasoning question)...")
-                    print("   → Detecting objects using VQA model (neural part)...")
+                    print("🧠 Neuro-Symbolic supplement: detecting subject via CLIP...")
 
-                # NEURAL: VQA model detects objects from the image
-                detected_objects = self._detect_multiple_objects(image, model, top_k=5)
-
-                if verbose:
-                    print(f"   → Objects detected: {detected_objects}")
-                    print("   → Fetching Wikidata facts + Groq verbalization...")
-
-                # SYMBOLIC: rule engine queries Wikidata properties (P2101, P2054, P2777, P31...)
-                ns_result = self.kg_service.answer_with_clip_features(
-                    image_features=None,
-                    question=question,
-                    detected_objects=detected_objects
+                # CLIP zero-shot: compare image against 80+ concrete noun labels
+                # This is much more accurate than asking the VQA model
+                detected_objects = self.kg_service.detect_objects_with_clip(
+                    image_path=image_path, top_k=3
                 )
 
-                if ns_result:
-                    answer_text = ns_result['kg_enhancement']
-                    if verbose:
-                        print(f"✨ Neuro-Symbolic Answer: {answer_text}")
-                        entity = ns_result.get('wikidata_entity', '')
-                        print(f"   → Wikidata entity: {entity}")
-                    return {
-                        'answer': ', '.join(detected_objects[:3]),
-                        'model_used': 'neuro-symbolic',
-                        'confidence': 1.0,
-                        'kg_enhancement': answer_text,
-                        'reasoning_type': 'neuro-symbolic',
-                        'objects_detected': detected_objects,
-                        'question_intent': ns_result.get('question_intent'),
-                        'wikidata_entity': ns_result.get('wikidata_entity'),
-                        'knowledge_source': ns_result.get('knowledge_source'),
-                    }
-
                 if verbose:
-                    print("   → No Wikidata rule matched, falling back to neural VQA")
+                    print(f"   → CLIP detected: {detected_objects}")
+                    print("   → Fetching Wikidata facts + Groq verbalization...")
 
-        if verbose:
-            print("📝 Using neural VQA...")
-        answer = self.vocab.decoder(generated[0].cpu().numpy())
+                if detected_objects:
+                    ns_result = self.kg_service.answer_with_clip_features(
+                        image_features=None,
+                        question=question,
+                        detected_objects=tuple(detected_objects)
+                    )
+
+                    if ns_result:
+                        kg_enhancement   = ns_result['kg_enhancement']
+                        reasoning_type   = 'neuro-symbolic'
+                        objects_detected = detected_objects          # expose to return dict
+                        question_intent  = ns_result.get('question_intent')
+                        wikidata_entity  = ns_result.get('wikidata_entity')
+                        knowledge_source = ns_result.get('knowledge_source')
+                        if verbose:
+                            print(f"✨ Neuro-Symbolic supplement: {kg_enhancement}")
+                            print(f"   → Wikidata entity: {wikidata_entity}")
+                else:
+                    if verbose:
+                        print("   → CLIP could not identify subject, skipping Wikidata lookup")
+
         return {
-            'answer': answer,
-            'model_used': model_used,
-            'confidence': 1.0,
-            'kg_enhancement': None,
-            'reasoning_type': 'neural'
+            'answer':           neural_answer,
+            'model_used':       model_used,
+            'confidence':       1.0,
+            'kg_enhancement':   kg_enhancement,
+            'reasoning_type':   reasoning_type,
+            'objects_detected': objects_detected,
+            'question_intent':  question_intent,
+            'wikidata_entity':  wikidata_entity,
+            'knowledge_source': knowledge_source,
         }
     def answer_conversational(
         self,
@@ -319,19 +330,23 @@ class ProductionEnsembleVQA:
         result['resolved_question'] = resolved_question
         result['conversation_context'] = context
         return result
-    def _detect_multiple_objects(self, image, vqa_model, top_k=5):
+    def _detect_multiple_objects(self, image, vqa_model, top_k=3):
         """
-        Detect multiple objects in the image using VQA's visual features.
-        Uses different question variations to get multiple objects.
+        Detect the primary subject of the image using neutral, unbiased questions.
+        We ask the same question several ways so the VQA model has the best chance
+        of identifying the actual subject — never biasing toward food or objects.
+        Returns at most top_k unique answers.
         """
-        detected = []
+        # Neutral questions — no food bias, no category bias
         detection_questions = [
-            "What is this?",
-            "What food is this?",
-            "What object is this?",
-            "What is in the image?",
-            "What do you see?",
+            "What is the main subject of this image?",
+            "What is in this image?",
+            "What is shown in this picture?",
         ]
+        # Tokens we treat as non-answers
+        stop_words = {'a', 'an', 'the', 'this', 'that', 'it', 'yes', 'no',
+                      'some', 'there', 'here', 'image', 'picture', 'photo'}
+        detected = []
         for question in detection_questions:
             try:
                 question_tokens = self.tokenizer(
@@ -347,37 +362,17 @@ class ProductionEnsembleVQA:
                 }
                 with torch.no_grad():
                     generated = vqa_model(image, questions)
-                answer = self.vocab.decoder(generated[0].cpu().numpy())
-                if answer and answer.strip() and answer not in detected:
-                    if answer.lower() not in ['a', 'an', 'the', 'this', 'that', 'it', 'yes', 'no']:
-                        detected.append(answer.strip())
-                        if len(detected) >= top_k:
-                            break
+                answer = self.vocab.decoder(generated[0].cpu().numpy()).strip()
+                if (answer
+                        and answer.lower() not in stop_words
+                        and answer not in detected):
+                    detected.append(answer)
+                    if len(detected) >= top_k:
+                        break
             except Exception as e:
                 print(f"   ⚠️  Error detecting objects: {e}")
                 continue
-        if not detected:
-            print("   ⚠️  No objects detected, using fallback")
-            try:
-                question_tokens = self.tokenizer(
-                    "What is this?",
-                    padding='max_length',
-                    truncation=True,
-                    max_length=vqa_model.question_max_len,
-                    return_tensors='pt'
-                )
-                questions = {
-                    'input_ids': question_tokens['input_ids'].to(self.device),
-                    'attention_mask': question_tokens['attention_mask'].to(self.device)
-                }
-                with torch.no_grad():
-                    generated = vqa_model(image, questions)
-                answer = self.vocab.decoder(generated[0].cpu().numpy())
-                if answer and answer.strip():
-                    detected = [answer.strip()]
-            except:
-                pass
-        return detected if detected else ["food"]
+        return detected if detected else []
     def batch_answer(self, image_question_pairs, use_beam_search=True, verbose=False):
         """
         Answer multiple questions efficiently.
