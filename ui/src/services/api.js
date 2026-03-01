@@ -1,11 +1,9 @@
 import axios from 'axios';
+import { Platform } from 'react-native';
 import { API_BASE_URL, API_ENDPOINTS, API_TIMEOUT } from '../config/api';
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: API_TIMEOUT,
-  headers: {
-    'Content-Type': 'multipart/form-data',
-  },
 });
 apiClient.interceptors.request.use(
   (config) => {
@@ -27,23 +25,39 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+/**
+ * On web, expo-image-picker returns a blob: URL.
+ * Browsers require an actual Blob/File in FormData — the React Native
+ * { uri, name, type } shorthand only works in the native runtime.
+ * We fetch the blob on web and fall back to the native object on iOS/Android.
+ */
+const appendImageToFormData = async (formData, imageUri) => {
+  if (Platform.OS === 'web') {
+    // Fetch the blob: or data: URI and convert to a File object
+    const response = await fetch(imageUri);
+    const blob = await response.blob();
+    const filename = imageUri.split('/').pop() || 'image.jpg';
+    const ext = filename.split('.').pop() || 'jpg';
+    const mimeType = blob.type || `image/${ext}`;
+    const file = new File([blob], filename || `photo.${ext}`, { type: mimeType });
+    formData.append('image', file);
+  } else {
+    // React Native native runtime supports the { uri, name, type } shorthand
+    const filename = imageUri.split('/').pop() || 'photo.jpg';
+    const match = /\.(\w+)$/.exec(filename);
+    const type = match ? `image/${match[1]}` : 'image/jpeg';
+    formData.append('image', { uri: imageUri, name: filename, type });
+  }
+};
 export const askQuestion = async (imageUri, question) => {
   try {
     const formData = new FormData();
-    const filename = imageUri.split('/').pop();
-    const match = /\.(\w+)$/.exec(filename);
-    const type = match ? `image/${match[1]}` : 'image/jpeg';
-    formData.append('image', {
-      uri: imageUri,
-      name: filename,
-      type: type,
-    });
+    await appendImageToFormData(formData, imageUri);
     formData.append('question', question);
-    const response = await apiClient.post(API_ENDPOINTS.ANSWER, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    // On web: do NOT set Content-Type manually — the browser adds the boundary automatically.
+    // On native: React Native's XHR needs the hint.
+    const headers = Platform.OS !== 'web' ? { 'Content-Type': 'multipart/form-data' } : {};
+    const response = await apiClient.post(API_ENDPOINTS.ANSWER, formData, { headers });
     return response.data;
   } catch (error) {
     console.error('askQuestion error:', error);
