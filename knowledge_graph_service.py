@@ -1,7 +1,4 @@
-"""
-Knowledge Graph Service for Neuro-Symbolic VQA
-Uses ConceptNet API to provide common-sense reasoning capabilities
-"""
+
 
 import requests
 import re
