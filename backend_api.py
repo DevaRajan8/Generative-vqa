@@ -1,4 +1,7 @@
-
+"""
+FastAPI Backend for Ensemble VQA Mobile App
+Provides REST API endpoints for the React Native mobile application
+"""
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
