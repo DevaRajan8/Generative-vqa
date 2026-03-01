@@ -21,7 +21,7 @@
     },
     "web": {
       "favicon": "./assets/favicon.png",
-      "output": "static"
+      "bundler": "metro"
     },
     "plugins": ["expo-image-picker"]
   }
