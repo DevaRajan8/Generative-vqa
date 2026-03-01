@@ -20,7 +20,8 @@
       "package": "com.vqa.assistant"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "output": "static"
     },
     "plugins": ["expo-image-picker"]
   }
