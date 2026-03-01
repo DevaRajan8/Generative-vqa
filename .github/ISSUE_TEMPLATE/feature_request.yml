@@ -1,0 +1,45 @@
+---
+name: Feature Request
+description: Suggest an improvement or new feature
+labels: ["enhancement"]
+
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Feature Area
+      options:
+        - Neuro-Symbolic Reasoning
+        - Wikidata Integration
+        - Groq / LLM Integration
+        - Conversational VQA
+        - Model Accuracy
+        - Mobile UI
+        - API / Endpoints
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Motivation
+      description: What problem does this solve?
+      placeholder: "Currently, when I ask 'Can this burn?' the system..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      placeholder: "Add a Wikidata property P2777 (flash point) check..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      placeholder: "I also considered using ConceptNet, but..."

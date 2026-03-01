@@ -1,0 +1,74 @@
+---
+name: Bug Report
+description: Report a bug or unexpected behavior in the VQA system
+labels: ["bug", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill in as much detail as possible.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of the system is affected?
+      options:
+        - Backend API (backend_api.py)
+        - Ensemble VQA (ensemble_vqa_app.py)
+        - Neuro-Symbolic Reasoning (semantic_neurosymbolic_vqa.py)
+        - Groq / LLM Service
+        - Wikidata Integration
+        - Expo Mobile UI
+        - Training / Fine-tuning
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What happened? What did you expect?
+      placeholder: "When I ask 'Can this melt?' the system returns..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      placeholder: |
+        1. Start the backend with `python backend_api.py`
+        2. Upload image of ...
+        3. Ask question "..."
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs / Error Output
+      render: shell
+      placeholder: Paste terminal output or error traceback here
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Critical (system crashes)
+        - High (wrong answers consistently)
+        - Medium (degraded accuracy)
+        - Low (cosmetic / minor)
+    validations:
+      required: true
+
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: "Python 3.11, CUDA 12.1, Windows 11 / Ubuntu 22.04"

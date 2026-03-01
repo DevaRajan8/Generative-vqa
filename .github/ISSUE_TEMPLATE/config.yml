@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Setup Guide
+    url: https://github.com/DevaRajan8/Generative-vqa/blob/main/SETUP_GUIDE.md
+    about: First time setup and configuration
+  - name: VQA Enhancements Docs
+    url: https://github.com/DevaRajan8/Generative-vqa/blob/main/VQA_ENHANCEMENTS.md
+    about: Documentation for neuro-symbolic and conversational features
